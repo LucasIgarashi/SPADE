@@ -1,0 +1,30 @@
+XMPP Software - Client/Server: Gajim
+
+XMPP Providers - Category A: magicbroccoli.de
+
+login: igarashi@magicbroccoli.de
+password: andorinha123321
+
+
+Perguntas:
+
+P: Por quê tenho que apertar duas vezes Ctrl+C? Qual o motivo de apertar uma única vez e vir a mensagem "Keyboard interrupt received. Stopping SPADE..."
+
+R: Porque é preciso encerrar dois processos, mas existe uma função em agent.py chamada 'stop' que finaliza o agente.
+
+-
+
+P: O que são e para que serve os seguintes Plugins?
+    spade_bdi (BDI agents with AgentSpeak):
+	Code: https://github.com/javipalanca/spade_bdi
+    spade_pubsub (PubSub protocol for agents):
+	Code: https://github.com/javipalanca/spade_pubsub
+	Documentation: https://spade-pubsub.readthedocs.io
+   spade_artifact (Artifacts for SPADE):
+	Code: https://github.com/javipalanca/spade_artifact
+	Documentation: https://spade-artifact.readthedocs.io
+   spade_bokeh (bokeh plots for agents):
+	Code: https://github.com/javipalanca/spade_bokeh
+	Documentation: https://spade-bokeh.readthedocs.io
+
+R: Seja o que for, não iremos utilizar, mas é bacana dar uma olhada no spade_bdi, só por ser legal.
