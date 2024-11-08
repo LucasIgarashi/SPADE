@@ -3,28 +3,51 @@ from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour
 from spade.template import Template
 from spade.message import Message
+from spade.__init__ import wait_until_finished
 import random
+import time
 
 #Agente gerador
 class Gerador(Agent):
     x = random.randint(-3,3) #NÃO_ESQUECER_DE_VOLTAR_OS_VALORES_ORIGINAIS
-    a=0
+    a = 0
+    b = 0
+    c = 0
+    d = 0
     while a == 0:
         a = random.randint(-3,3)
     y = -1 * (a*x)
+    b = random.randint(-3,3)
+    w = -1 * (b*x)
+    c = random.radint(-3,3)
+    z = -1 * (c*x)
 
+# Escolher função
+#   class selecionar_funcao():
+
+# Função de primeiro grau
     class funcao_1grau(CyclicBehaviour):
         async def run(self):
             res = await self.receive(timeout=5)
             if res:
                 x = float(res.body)
-                x = float( Gerador.a*x + Gerador.y )
+                x = float(Gerador.a*x + Gerador.y)
                 print("Enviou para " + str(res.sender) + " f(",res.body,")= ",x,"=>",int(x))
                 msg = Message(to=str(res.sender)) 
                 msg.set_metadata("performative", "inform")  
                 msg.body = str(int(x))
                 await self.send(msg)
 
+# #Função de segundo grau
+    # class funcao_2grau(CyclicBehaviour):
+    #   x = float(res.body)
+    #   x = float(Gerador.a*(x*x) + Gerador.y*(x) + Gerador.c)
+# #Função de terceiro grau
+    # class funcao_3grau(CyclicBehaviour):
+    #   x = float(res.body)
+    #   x = float(Gerador.a*(x*x*x) + Gerador.y*(x*x) + Gerador.w*(x) + Gerador)
+
+# Classificar a função
     class tipo_funcao(CyclicBehaviour):
         async def run(self):
             msg = await self.receive(timeout=5)
