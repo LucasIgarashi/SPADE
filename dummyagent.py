@@ -7,104 +7,104 @@ import random
 
 #Agente gerador
 class Gerador(Agent):
-    graus = [1, 2, 3]
+    graus = [3]
     grau = random.choice(graus) 
-    x = random.randint(-10,10) #NÃO_ESQUECER_DE_VOLTAR_OS_VALORES_ORIGINAIS
+    k = random.randint(-100,100) #NÃO_ESQUECER_DE_VOLTAR_OS_VALORES_ORIGINAIS
     a = 0
     b = 0
     c = 0
     d = 0
 
     while a == 0:
-        a = random.randint(-1,1)
-    y = 1*(a*x)
-    b = random.randint(-1,1)
-    w = 1*(a*x*x) + 1*(b*x)
-    c = random.randint(-1,1)
-    z = 1*(a*x*x*x) + 1*(b*x*x) + 1*(c*x)
+        a = random.randint(-10,10)
+    b = random.randint(-10,10)
+    c = random.randint(-10,10)
+    d = random.randint(-10,10)
+ 
+# #Tipificar a função
+#     class tipo_funcao(CyclicBehaviour):
+#         async def run(self):
+#             msg = await self.receive(timeout=10)
+#             if msg:
+#                 msg = Message(to=str(msg.sender))
+#                 msg.set_metadata("performative", "inform")
+#                 msg.body = f"{Gerador.grau}º"
+#                 print(f"Respondeu para {str(msg.sender)} com {msg.body}")
+#                 await self.send(msg)
 
-# Função de primeiro grau
+#Função
     class Funcao(CyclicBehaviour):
         async def run(self):
             res = await self.receive(timeout=10)
             if res:
                 x = float(res.body)
-                if Gerador.grau == 1:
-                    resultado = float(Gerador.a*(x) + Gerador.y)
-                elif Gerador.grau == 2:
-                    resultado = float(Gerador.a*(x*x) + Gerador.b*(x) + Gerador.w)
-                elif Gerador.grau == 3:
-                    resultado = float(Gerador.a*(x*x*x) + Gerador.b*(x*x) + Gerador.c*(x) + Gerador.z)
+                z = int(Gerador.grau)
+                if z == 1:
+                    resultado = float((Gerador.a*(x)) + (Gerador.b))
+                elif z == 2:
+                    resultado = float(Gerador.a*(x**2) + Gerador.b*(x) + Gerador.c)
+                else:
+                    resultado = float(Gerador.a*(x - Gerador.b)*(x - Gerador.c)*(x - Gerador.d))
 
-                print(f"Enviou para o agente Resolvedor f({res.body})= {resultado} => {int(resultado)}")
-                msg = Message(to=str(res.sender)) 
-                msg.set_metadata("performative", "inform")  
+                print(f"Enviou para o agente Resolvedor f({x}) = {resultado} => {int(resultado)}")
+                msg = Message(to=str(res.sender))
+                msg.set_metadata("performative", "inform")
                 msg.body = str(int(resultado))
                 await self.send(msg)
 
-# Classificar a função
-    class tipo_funcao(CyclicBehaviour):
-        async def run(self):
-            msg = await self.receive(timeout=10)
-            if msg:
-                msg = Message(to=str(msg.sender))
-                msg.set_metadata("performative", "inform")
-                msg.body = f"{Gerador.grau}grau" 
-                print("Respondeu para" + str(msg.sender) + " com " + msg.body)
-                await self.send(msg)
-
     async def setup(self):
+        print("Agente Gerador iniciado\n")
 
         #Função
         t = Template()
         t.set_metadata("performative","subscribe")
         tf = self.Funcao()
-        print("\n================================================")
+        print("================================================")
         print(f"Funcao de {Gerador.grau}º grau")
         if Gerador.grau == 1:
-            print(f"Funcao: {Gerador.a}x + {Gerador.y}")
+            print(f"Funcao: f(x) = ({Gerador.a})*x + ({Gerador.b})")
         elif Gerador.grau == 2:
-            print(f"Funcao: {Gerador.a}x^2 + {Gerador.b}x + {Gerador.w}")
-        elif Gerador.grau == 3:
-            print(f"Funcao: {Gerador.a}x^3 + {Gerador.b}x^2 + {Gerador.c}x + {Gerador.z}")
-        print("================================================\n")
+            print(f"Funcao: f(x) = ({Gerador.a})*x^2 + ({Gerador.b})*x + ({Gerador.c})")
+        else:
+            print(f"Funcao: f(x) = a*(x - {Gerador.b})*(x - {Gerador.c})*(x - {Gerador.d})")
+        print("================================================")
         self.add_behaviour(tf,t)
 
-        #tipo da função
-        ft = self.tipo_funcao()
-        template = Template()
-        template.set_metadata("performative", "request")
-        self.add_behaviour(ft, template)
+        # #Tipo da função
+        # ft = self.tipo_funcao()
+        # template = Template()
+        # template.set_metadata("performative", "request")
+        # self.add_behaviour(ft, template)
 
-# Agente resolvedor
+#Agente resolvedor
 class Resolvedor(Agent):
-    class EncontrarX(CyclicBehaviour):
+    class Chute(CyclicBehaviour):
         async def run(self):
-            x = random.randint(-10,10) 
+            x = random.randint(-100,100) 
             msg = Message(to="gerador@magicbroccoli.de")
             msg.set_metadata("performative", "subscribe")
             msg.body = str(x)
-            print("\n================================================")
-            print(f"Enviou x = {x} para o agente Gerador")
+            print("================================================")
+            print(f"Enviou para o agente Gerador x = {x}")
             await self.send(msg)
 
             res = await self.receive(timeout=10)
             if res:
                 resultado = int(res.body)
-                print(f"Recebeu f({x}) = {resultado} do agente Gerador")
 
                 if resultado == 0:
                     print(f"Encontrou a solução: x = {x}")
-                    print("================================================\n")
+                    print("================================================")
                     await self.agent.stop()
                 else:
                     print("Solução diferente de zero, tentando novamento...")
-                    print("================================================\n")
+                    print("================================================")
 
 
     async def setup(self):
-        print("Agente Resolvedor iniciado")
-        resolver = self.EncontrarX()
+        print("\nAgente Resolvedor iniciado\n")
+
+        resolver = self.Chute()
         template = Template()
         template.set_metadata("performative", "inform")
         self.add_behaviour(resolver, template)
