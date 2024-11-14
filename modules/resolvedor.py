@@ -1,26 +1,24 @@
 import spade
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour, OneShotBehaviour
-from spade.template import Template
 from spade.message import Message
 import random
-import time
 
 #Agente resolvedor
 class Resolvedor(Agent):
     grau = 0
 
     #Tipifica qual a função
-    class Tipo_funcao(OneShotBehaviour):
+    class setTypeFunction(OneShotBehaviour):
         async def run(self):
             print("===========================================================================")
-            print("Resolvedor: Requisitando o grau da função")
-            msg = Message(to="gerador@magicbroccoli.de")
-            msg.set_metadata("performative", "request")
-            await self.send(msg)
-            res = await self.receive(timeout=10)
-            if res:
-                Resolvedor.grau = int(res.body)
+            print("Resolvedor: Requisitando o grau da função...")
+            msg_request = Message(to="gerador@magicbroccoli.de")
+            msg_request.set_metadata("performative", "request")
+            await self.send(msg_request)
+            res_received = await self.receive(timeout=10)
+            if res_received:
+                Resolvedor.grau = int(res_received.body)
                 grau = {
                     1:'linear',
                     2:'quadrática',
@@ -28,28 +26,37 @@ class Resolvedor(Agent):
                     }
                 print(f"Resolvedor: A função é {grau[Resolvedor.grau]}")
                 print("===========================================================================")
-                self.agent.add_behaviour(self.agent.Chute())
+                self.agent.add_behaviour(self.agent.Guess())
 
-    # #Printa a função
-    # class get_Function(OneShotBehaviour):
+
+    class abracadabra(): 
+    # #Requisita print da função
+    # class getFunction(CyclicBehaviour):
     #     async def run(self):
-    #         msg = Message(to="gerador@magicbroccoli.de")
-    #         msg.set_metadata("performative", "subscribe")
-    #         await self.send(msg)
+    #         msg_request = Message(to="gerador@magicbroccoli.de")
+    #         msg_request.set_metadata("performative", "request")
+    #         await self.send(msg_request)
+    #         res_received = 0
+    #         res_received = await self.receive(timeout=10)
+    #         if res_received:
+    #             print("Resolvedor: Gerador printou a função")
+    #             self.agent.add_behaviour(self.agent.Chute())
+        pass
+
 
     #Chuta valores para a raíz da função
-    class Chute(CyclicBehaviour):
+    class Guess(CyclicBehaviour):
         async def run(self):
-            x = random.randint(-100,100) 
-            msg = Message(to="gerador@magicbroccoli.de")
-            msg.set_metadata("performative", "subscribe")
-            msg.body = str(x)
+            x = random.randint(-50,50)
+            msg_request = Message(to="gerador@magicbroccoli.de")
+            msg_request.set_metadata("performative", "subscribe")
+            msg_request.body = str(x)
             print("===========================================================================")
             print(f"Resolvedor: Enviou para o agente Gerador x = {x}")
-            await self.send(msg)
-            res = await self.receive(timeout=10)
-            if res:
-                resultado = int(res.body)
+            await self.send(msg_request)
+            res_received = await self.receive(timeout=10)
+            if res_received:
+                resultado = int(res_received.body)
                 if resultado == 0:
                     print(f"Resolvedor: Portanto, a/uma solução é x = {x}")
                     print("===========================================================================")
@@ -60,19 +67,12 @@ class Resolvedor(Agent):
 
     async def setup(self):
         #Grau
-        g = self.Tipo_funcao()
+        g = self.setTypeFunction()
         self.add_behaviour(g)
 
 async def main():
-    resolvedor = Resolvedor("igarashi@magicbroccoli.de", "andorinha123321")
+    resolvedor = Resolvedor("resolvedor@magicbroccoli.de", "Senh@qui12")
     await resolvedor.start()
-    while resolvedor.is_alive():
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            resolvedor.stop()
-            break
-    print("Resolvedor: Agente encerrou!")
 
 if __name__=='__main__':
     spade.run(main())
