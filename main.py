@@ -9,7 +9,7 @@ async def main():
     print("===========================================================================")
     print("Gerador: Agente iniciado")
 
-    resolvedor = Resolvedor("igarashi@magicbroccoli.de", "andorinha123321")
+    resolvedor = Resolvedor("resolvedor@magicbroccoli.de", "Senh@qui12")
     await resolvedor.start()
     print("Resolvedor: Agente iniciado")
     print("===========================================================================")
