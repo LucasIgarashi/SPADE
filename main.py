@@ -6,13 +6,13 @@ async def main():
 
     gerador = Gerador("gerador@magicbroccoli.de", "Senh@qui12")
     await gerador.start()
-    print("\nAgente Gerador iniciado\n")
-
+    print("===========================================================================")
+    print("Gerador: Agente iniciado")
 
     resolvedor = Resolvedor("igarashi@magicbroccoli.de", "andorinha123321")
     await resolvedor.start()
-    print("\nAgente Resolvedor iniciado\n")
-
+    print("Resolvedor: Agente iniciado")
+    print("===========================================================================")
 
 if __name__ == "__main__":
     spade.run(main())
