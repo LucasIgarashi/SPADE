@@ -28,22 +28,6 @@ class Resolvedor(Agent):
                 print("===========================================================================")
                 self.agent.add_behaviour(self.agent.Guess())
 
-
-    class abracadabra(): 
-    # #Requisita print da função
-    # class getFunction(CyclicBehaviour):
-    #     async def run(self):
-    #         msg_request = Message(to="gerador@magicbroccoli.de")
-    #         msg_request.set_metadata("performative", "request")
-    #         await self.send(msg_request)
-    #         res_received = 0
-    #         res_received = await self.receive(timeout=10)
-    #         if res_received:
-    #             print("Resolvedor: Gerador printou a função")
-    #             self.agent.add_behaviour(self.agent.Chute())
-        pass
-
-
     #Chuta valores para a raíz da função
     class Guess(CyclicBehaviour):
         async def run(self):
