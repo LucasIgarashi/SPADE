@@ -7,11 +7,11 @@ async def main():
     gerador = Gerador("gerador@magicbroccoli.de", "Senh@qui12")
     await gerador.start()
     print("===========================================================================")
-    print("Gerador: Agente iniciado")
+    print("Gerador      - Agente iniciado")
 
     resolvedor = Resolvedor("resolvedor@magicbroccoli.de", "Senh@qui12")
     await resolvedor.start()
-    print("Resolvedor: Agente iniciado")
+    print("Resolvedor   - Agente iniciado")
     print("===========================================================================")
 
 if __name__ == "__main__":
