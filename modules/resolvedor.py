@@ -6,11 +6,13 @@ from spade.message import Message
 from numpy import array, roots, isreal
 from numpy.linalg import solve
 
-# Agente resolvedor
+#Agente resolvedor
 class Resolvedor(Agent):
     grau = 0
 
-    # Tipifica qual a função
+#remover os 'for' e substituir pelas ferramentas que o próprio SPADE dá, como o CyclicBehavior
+
+    #Tipifica qual a função
     class setTypeFunction(OneShotBehaviour):
         async def run(self):
             print("===========================================================================")
@@ -62,6 +64,8 @@ class Resolvedor(Agent):
                     B.append(fx)
                 A = array(A)
                 B = array(B)
+
+#Implementar a função que irá encontrar os coeficientes da função que do agente gerador (ou seja, não utilizar bibliotecas prontas para isso)
                 coeficientes = solve(A, B).round().astype(int) #Pelos valores obtidos com os chutes anteriores, encontra os coeficientes da função
                 f_x = [f"(({coeficientes[i]})*(x^{self.agent.grau - i}))" for i in range(self.agent.grau + 1)]
                 print("===========================================================================")
@@ -70,7 +74,7 @@ class Resolvedor(Agent):
                 raizes_reais = [raiz.real for raiz in raizes if isreal(raiz)]
                 print("===========================================================================")
 
-                # Enviar as raízes reais para o agente Gerador e verificar se f(x) = 0
+                #Enviar as raízes reais para o agente Gerador e verificar se f(x) = 0
                 for raiz in raizes_reais:
                     msg_request3 = Message(to="gerador@magicbroccoli.de")
                     msg_request3.set_metadata("performative", "subscribe")
