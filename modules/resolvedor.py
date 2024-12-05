@@ -8,11 +8,10 @@ from spade.message import Message
 # Agente resolvedor
 class Resolvedor(Agent):
     grau = 0
+    resultados = []
 
-    # TODO: remover os 'for' e substituir pelas ferramentas que o próprio SPADE dá, como o CyclicBehavior
-
-    #Tipifica qual a função
-    class setTypeFunction(OneShotBehaviour):
+    # Tipifica qual a função
+    class Tipifica(OneShotBehaviour):
         async def run(self):
             print("===========================================================================")
             print("RESOLVEDOR  - Requisitando o grau da função...")
@@ -130,13 +129,44 @@ class Resolvedor(Agent):
                 return [-b / a]
             else:
                 return []
-            
 
         async def run(self):
-            resultados = []
-            n_const = [i for i in range(self.agent.grau + 1)]
+            if len(self.agent.resultados) == self.agent.grau + 1:
+                # Cria a matriz correspondente do sistema linear para encontrar os coeficientes
+                # utilizando os valores chutados anteriormente
+                A = []
+                b = []
+                for x, fx in self.agent.resultados:
+                    r = [x**i for i in reversed(range(self.agent.grau + 1))]
+                    A.append(r)
+                    b.append(fx)
 
-            for x in n_const:
+                # Resolve a matriz utilizando o método de eliminação gaussiana
+                coeficientes = self.gaussian_elimination(A, b)
+                f_x = [f"({coeficientes[i]}*x^{self.agent.grau - i})" for i in range(self.agent.grau + 1)]
+                print("===========================================================================")
+                print(f"RESOLVEDOR  - A função gerada é: f(x) = {' + '.join(f_x)}")
+                print("===========================================================================")
+
+                # Encontra e envia as raízes reais para o agente Gerador e verifica se f(x) = 0
+                raizes_reais = self.solve_polynomial(coeficientes)
+                for raiz in raizes_reais:
+                    msg = Message(to="gerador@magicbroccoli.de")
+                    msg.set_metadata("performative", "subscribe")
+                    msg.body = str(raiz)
+                    await self.send(msg)
+                    res = await self.receive(timeout=10)
+                    if res:
+                        x = float(res.body)
+                        if x == 0:
+                            print(f"RESOLVEDOR  - Como f({raiz}) = 0, a raiz {raiz} é solução.")
+                        else:
+                            print(f"RESOLVEDOR  - ERRO! A raiz {raiz} não é solução.")
+
+                print("===========================================================================")
+                await self.agent.stop()
+            else:
+                x = len(self.agent.resultados)
                 msg = Message(to="gerador@magicbroccoli.de")
                 msg.set_metadata("performative", "subscribe")
                 msg.body = str(x)
@@ -146,7 +176,7 @@ class Resolvedor(Agent):
                 res = await self.receive(timeout=10)
                 if res:
                     resultado = float(res.body)
-                    resultados.append((x, resultado))
+                    self.agent.resultados.append((x, resultado))
                     print(f"RESOLVEDOR  - Recebeu resultado = {resultado}")
                     if resultado == 0 and self.agent.grau == 1:
                         print(f"RESOLVEDOR  - A solução para a função é x = {x}")
@@ -154,42 +184,10 @@ class Resolvedor(Agent):
                 else:
                     print(f"RESOLVEDOR  - Não recebeu resposta para x = {x}")
 
-            if len(resultados) == self.agent.grau + 1:
-                A = []
-                b = []
-                for x, fx in resultados:
-                    r = [x**i for i in reversed(range(self.agent.grau + 1))]
-                    A.append(r)
-                    b.append(fx)
-
-                # Pelos valores obtidos com os chutes anteriores, encontra os coeficientes da função
-                coeficientes = self.gaussian_elimination(A, b)
-                f_x = [f"(({coeficientes[i]})*(x^{self.agent.grau - i}))" for i in range(self.agent.grau + 1)]
-                print("===========================================================================")
-                print(f"RESOLVEDOR  - A função gerada é: f(x) = {' + '.join(f_x)}")
-                raizes_reais = self.solve_polynomial(coeficientes)
-                print(raizes_reais)
-                print("===========================================================================")
-
-                #Enviar as raízes reais para o agente Gerador e verificar se f(x) = 0
-                for raiz in raizes_reais:
-                    msg_request3 = Message(to="gerador@magicbroccoli.de")
-                    msg_request3.set_metadata("performative", "subscribe")
-                    msg_request3.body = str(raiz)
-                    await self.send(msg_request3)
-                    res_received3 = await self.receive(timeout=10)
-                    if res_received3:
-                        valor_funcao = float(res_received3.body)
-                        if valor_funcao == 0:
-                            print(f"RESOLVEDOR  - Como f({raiz}) = 0, a raiz {raiz} é solução.")
-                print("===========================================================================")
-                await self.agent.stop()
-
     async def setup(self):
-        stf = self.setTypeFunction()
-        t = Template()
-        t.set_metadata("performative", "inform")
-        self.add_behaviour(stf, t)
+        template = Template()
+        template.set_metadata("performative", "inform")
+        self.add_behaviour(self.Tipifica(), template)
 
 async def main():
     resolvedor = Resolvedor("resolvedor@magicbroccoli.de", "Senh@qui12")
